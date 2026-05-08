@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>百名山・二百名山・三百名山 赤色立体地図スライドショー</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #111;
+      color: #fff;
+      text-align: center;
+    }
+
+    header {
+      padding: 10px;
+      background: #222;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    select, button {
+      font-size: 16px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: none;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    #title {
+      margin: 8px 0;
+      font-size: 18px;
+    }
+
+    #slideArea {
+      width: 100vw;
+      height: calc(100vh - 100px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #000;
+    }
+
+    #slideImage {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    #counter {
+      font-size: 14px;
+      color: #ccc;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <label>
+    山リスト：
+    <select id="categorySelect">
+      <option value="100">日本百名山</option>
+      <option value="200">日本二百名山</option>
+      <option value="300">日本三百名山</option>
+    </select>
+  </label>
+
+  <label>
+    速度：
+    <select id="speedSelect">
+      <option value="5000">ゆっくり</option>
+      <option value="3000" selected>普通</option>
+      <option value="1500">速い</option>
+      <option value="200">爆速</option>
+    </select>
+  </label>
+
+  <button id="prevBtn">前へ</button>
+  <button id="playBtn">再生</button>
+  <button id="nextBtn">次へ</button>
+</header>
+
+<div id="title">読み込み中...</div>
+
+<div id="slideArea">
+  <img id="slideImage" src="" alt="山の赤色立体地図" />
+</div>
+
+<div id="counter"></div>
+
+<script>
+  const categorySelect = document.getElementById("categorySelect");
+  const speedSelect = document.getElementById("speedSelect");
+  const slideImage = document.getElementById("slideImage");
+  const titleText = document.getElementById("title");
+  const counter = document.getElementById("counter");
+
+  const playBtn = document.getElementById("playBtn");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+
+  let images = [];
+  let currentIndex = 0;
+  let timer = null;
+  let isPlaying = false;
+
+  async function loadCategory(category) {
+    stopSlideShow();
+
+    currentIndex = 0;
+    images = [];
+
+    titleText.textContent = "読み込み中...";
+    slideImage.src = "";
+    counter.textContent = "";
+
+    try {
+      const response = await fetch(`${category}/manifest.json`);
+      images = await response.json();
+
+      if (images.length === 0) {
+        titleText.textContent = "画像がありません";
+        return;
+      }
+
+      showSlide();
+    } catch (error) {
+      titleText.textContent = "manifest.json を読み込めません";
+      console.error(error);
+    }
+  }
+
+  function showSlide() {
+    const category = categorySelect.value;
+    const fileName = images[currentIndex];
+
+    slideImage.src = `${category}/${fileName}`;
+
+    const cleanName = fileName
+      .replace(/\.[^/.]+$/, "")
+      .replace(/_/g, " ");
+
+    titleText.textContent = cleanName;
+    counter.textContent = `${currentIndex + 1} / ${images.length}`;
+  }
+
+  function nextSlide() {
+    if (images.length === 0) return;
+    currentIndex = (currentIndex + 1) % images.length;
+    showSlide();
+  }
+
+  function prevSlide() {
+    if (images.length === 0) return;
+    currentIndex = (currentIndex - 1 + images.length) % images.length;
+    showSlide();
+  }
+
+  function startSlideShow() {
+    if (isPlaying) return;
+
+    isPlaying = true;
+    playBtn.textContent = "停止";
+
+    const speed = Number(speedSelect.value);
+    timer = setInterval(nextSlide, speed);
+  }
+
+  function stopSlideShow() {
+    isPlaying = false;
+    playBtn.textContent = "再生";
+
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+  }
+
+  playBtn.addEventListener("click", () => {
+    if (isPlaying) {
+      stopSlideShow();
+    } else {
+      startSlideShow();
+    }
+  });
+
+  nextBtn.addEventListener("click", () => {
+    stopSlideShow();
+    nextSlide();
+  });
+
+  prevBtn.addEventListener("click", () => {
+    stopSlideShow();
+    prevSlide();
+  });
+
+  categorySelect.addEventListener("change", () => {
+    loadCategory(categorySelect.value);
+  });
+
+  speedSelect.addEventListener("change", () => {
+    if (isPlaying) {
+      stopSlideShow();
+      startSlideShow();
+    }
+  });
+
+  loadCategory("100");
+</script>
+
+</body>
+</html>
