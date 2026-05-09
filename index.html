@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>百名山・二百名山・三百名山 赤色立体地図スライドショー</title>
+  <title>百名山・二百名山・三百名山 赤色立体地図スライドショー/Japan 100 Famous Mountains – Red Relief Map</title>
 
   <style>
     body {
@@ -67,33 +67,33 @@
 
 <header>
   <label>
-    山リスト：
+    山リスト/ Mountain List：
     <select id="categorySelect">
-      <option value="100">日本百名山</option>
-      <option value="200">日本二百名山</option>
-      <option value="300">日本三百名山</option>
+      <option value="100">日本百名山/ Japan 100 Famous Mountains</option>
+      <option value="200">日本二百名山/ Japan 200 Famous Mountains</option>
+      <option value="300">日本三百名山/ Japan 300 Famous Mountains</option>
     </select>
   </label>
 
   <label>
-    速度：
+    速度/ Speed：
     <select id="speedSelect">
-      <option value="5000">ゆっくり</option>
-      <option value="3000">普通</option>
-      <option value="1500" selected>速い</option>
-      <option value="800">爆速</option>
+      <option value="5000">ゆっくり/ Slow</option>
+      <option value="3000">普通/ Normal</option>
+      <option value="1500" selected>速い/ Fast</option>
+      <option value="800">爆速/ Ultra Fast</option>
     </select>
   </label>
 
-  <button id="prevBtn">前へ</button>
-  <button id="playBtn">再生</button>
-  <button id="nextBtn">次へ</button>
+  <button id="prevBtn">前へ/Prev</button>
+  <button id="playBtn">再生/Play</button>
+  <button id="nextBtn">次へ/Next</button>
 </header>
 
 <div id="title">読み込み中...</div>
 
 <div id="slideArea">
-  <img id="slideImage" src="" alt="山の赤色立体地図" />
+  <img id="slideImage" src="" alt="山の赤色立体地図 Mountains – Red Relief Map" />
 </div>
 
 <div id="counter"></div>
@@ -129,13 +129,13 @@
       images = await response.json();
 
       if (images.length === 0) {
-        titleText.textContent = "画像がありません";
+        titleText.textContent = "画像がありません/ No Image Available";
         return;
       }
 
       showSlide();
     } catch (error) {
-      titleText.textContent = "manifest.json を読み込めません";
+      titleText.textContent = "manifest.json を読み込めません/ Failed to Load";
       console.error(error);
     }
   }
@@ -170,7 +170,7 @@
     if (isPlaying) return;
 
     isPlaying = true;
-    playBtn.textContent = "停止";
+    playBtn.textContent = "停止/ Stop";
 
     const speed = Number(speedSelect.value);
     timer = setInterval(nextSlide, speed);
@@ -178,7 +178,7 @@
 
   function stopSlideShow() {
     isPlaying = false;
-    playBtn.textContent = "再生";
+    playBtn.textContent = "再生/ Play";
 
     if (timer) {
       clearInterval(timer);
